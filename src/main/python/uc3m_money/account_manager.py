@@ -230,9 +230,8 @@ class AccountManager:
 
         return deposit_obj.deposit_signature
 
-
-def calculate_balance(self, iban:str)->bool:
-        """calculate the balance for a given iban"""
+    def calculate_balance(self, iban:str):
+        """ Calculates the balance for a given iban from the transcations sheet"""
         iban = self.validate_iban(iban)
         loaded_transactions = read_transactions_file()
         iban_found = False
