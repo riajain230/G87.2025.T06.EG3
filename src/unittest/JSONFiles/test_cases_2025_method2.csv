@@ -1,0 +1,78 @@
+VALID_INVALID,ID_TEST,FILE,RESULT
+VALID,RF2_TEST__1,case_ok.json,eab200202273da17d8c3069469975a1f55b056b12542ace052b695cc1d7f6a97
+INVALID,RF2_TEST__2,key_del_label2.json,Error - Invalid Key in JSON
+INVALID,RF2_TEST__3,ko_del_amount.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__4,ko_del_cents.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__5,ko_del_close_brace.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__6,ko_del_colon1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__7,ko_del_comma.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__8,ko_del_contentvalue1.json,Invalid IBAN format
+INVALID,RF2_TEST__9,ko_del_country.json,Invalid IBAN format
+INVALID,RF2_TEST__10,ko_del_currency.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__11,ko_del_field1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__12,ko_del_field2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__13,ko_del_ibannumbers.json,Invalid IBAN format
+INVALID,RF2_TEST__14,ko_del_intpart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__15,ko_del_label1.json,Error - Invalid Key in JSON
+INVALID,RF2_TEST__16,ko_del_money.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__17,ko_del_number.json,Invalid IBAN format
+INVALID,RF2_TEST__18,ko_del_numcentspart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__19,ko_del_numintpart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__20,ko_del_open_brace.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__21,ko_del_parameter1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__22,ko_del_parameter2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__23,ko_del_quotation4.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__24,ko_del_quote1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__25,ko_del_quote2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__26,ko_del_quote3.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__27,ko_del_space.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__28,ko_del_value2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__29,ko_drop_dot.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__30,ko_dup_amount.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__31,ko_dup_cents.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__32,ko_dup_closingbrace.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__33,ko_dup_colon1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__34,ko_dup_comma.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__35,ko_dup_contentvalue1.json,Invalid IBAN format
+INVALID,RF2_TEST__36,ko_dup_country.json,Invalid IBAN format
+INVALID,RF2_TEST__37,ko_dup_currency.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__38,ko_dup_dot.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__39,ko_dup_field1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__40,ko_dup_field2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__41,ko_dup_ibannumbers.json,Invalid IBAN format
+INVALID,RF2_TEST__42,ko_dup_intpart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__43,ko_dup_label1.json,Error - Invalid Key in JSON
+INVALID,RF2_TEST__44,ko_dup_label2.json,Error - Invalid Key in JSON
+INVALID,RF2_TEST__45,ko_dup_money.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__46,ko_dup_number.json,Invalid IBAN format
+INVALID,RF2_TEST__47,ko_dup_numintpart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__48,ko_dup_open_brace.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__49,ko_dup_parameter1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__50,ko_dup_parameter2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__51,ko_dup_quotation4.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__52,ko_dup_quote1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__53,ko_dup_quote2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__54,ko_dup_quote3.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__55,ko_dup_space.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__56,ko_dup_value1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__57,ko_dupcentspart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__58,ko_duplicated_content.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__59,ko_empty_file.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__60,ko_mod_closingbrace.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__61,ko_mod_colon1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__62,ko_mod_comma.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__63,ko_mod_countryu.json,Invalid IBAN format
+INVALID,RF2_TEST__64,ko_mod_dot.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__65,ko_mod_eur.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__66,ko_mod_label1.json,Error - Invalid Key in JSON
+INVALID,RF2_TEST__67,ko_mod_label2.json,Error - Invalid Key in JSON
+INVALID,RF2_TEST__68,ko_mod_num_inpart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__69,ko_mod_number.json,Invalid IBAN format
+INVALID,RF2_TEST__70,ko_mod_numcentspart.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__71,ko_mod_open_brace.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__72,ko_mod_quotation4.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__73,ko_mod_quote1.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__74,ko_mod_quote2.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__75,ko_mod_quote3.json,JSON Decode Error - Wrong JSON Format
+INVALID,RF2_TEST__76,ko_mod_space.json,Error - Invalid deposit amount
+INVALID,RF2_TEST__77,ko_zero_amount.json,Error - Deposit must be greater than 0
