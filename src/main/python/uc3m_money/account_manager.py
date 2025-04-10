@@ -16,9 +16,9 @@ def validate_concept(concept: str):
     """regular expression for checking the minimum and maximum length as well as
     the allowed characters and spaces restrictions
     there are other ways to check this"""
-    myregex = re.compile(r"^(?=^.{10,30}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$")
+    concept_pattern = re.compile(r"^(?=^.{10,30}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$")
 
-    res = myregex.fullmatch(concept)
+    res = concept_pattern.fullmatch(concept)
     if not res:
         raise AccountManagementException ("Invalid concept format")
 
@@ -34,6 +34,49 @@ def read_transactions_file():
     except json.JSONDecodeError as ex:
         raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
     return input_list
+
+
+def validate_transfer_date(transfer_date):
+    """validates the arrival date format  using regex"""
+    date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
+    result = date_pattern.fullmatch(transfer_date)
+    if not result:
+        raise AccountManagementException("Invalid date format")
+
+    try:
+        my_date = datetime.strptime(transfer_date, "%d/%m/%Y").date()
+    except ValueError as ex:
+
+        raise AccountManagementException("Invalid date format") from ex
+
+    if my_date < datetime.now(timezone.utc).date():
+        raise AccountManagementException("Transfer date must be today or later.")
+
+    if my_date.year < 2025 or my_date.year > 2050:
+        raise AccountManagementException("Invalid date format")
+    return transfer_date
+
+def read_json_file(file_path):
+    """ This functions reads to a JSON file and gives and error if file is not found
+    or it's not in json format"""
+    try:
+        with open(file_path, "r", encoding="utf-8", newline="") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError as ex:
+        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+
+def write_json_file(file_path, data):
+    """This functions writes to a JSON file and if raises error if the file pathis wrong or
+    not in JSON format"""
+    try:
+        with open(file_path, "w", encoding="utf-8", newline="") as file:
+            json.dump(data, file, indent=2)
+    except FileNotFoundError as ex:
+        raise AccountManagementException("Wrong file  or file path") from ex
+    except json.JSONDecodeError as ex:
+        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
 
 
 class AccountManager:
@@ -94,25 +137,6 @@ class AccountManager:
 
         return input_iban
 
-    def validate_transfer_date(self, transfer_date):
-        """validates the arrival date format  using regex"""
-        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-        result = date_pattern.fullmatch(transfer_date)
-        if not result:
-            raise AccountManagementException("Invalid date format")
-
-        try:
-            my_date = datetime.strptime(transfer_date, "%d/%m/%Y").date()
-        except ValueError as ex:
-
-            raise AccountManagementException("Invalid date format") from ex
-
-        if my_date < datetime.now(timezone.utc).date():
-            raise AccountManagementException("Transfer date must be today or later.")
-
-        if my_date.year < 2025 or my_date.year > 2050:
-            raise AccountManagementException("Invalid date format")
-        return transfer_date
     #pylint: disable=too-many-arguments
     def transfer_request(self, from_iban: str,
                          to_iban: str,
@@ -129,7 +153,7 @@ class AccountManager:
         result = transfer_type_pattern.fullmatch(transfer_type)
         if not result:
             raise AccountManagementException("Invalid transfer type")
-        self.validate_transfer_date(date)
+        validate_transfer_date(date)
 
         try:
             float_amount  = float(amount)
@@ -138,8 +162,8 @@ class AccountManager:
 
         n_str = str(float_amount)
         if '.' in n_str:
-            decimales = len(n_str.split('.')[1])
-            if decimales > 2:
+            decimals = len(n_str.split('.')[1])
+            if decimals > 2:
                 raise AccountManagementException("Invalid transfer amount")
 
         if float_amount < 10 or float_amount > 10000:
@@ -152,13 +176,7 @@ class AccountManager:
                                      transfer_date=date,
                                      transfer_amount=amount)
 
-        try:
-            with open(TRANSFERS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                transfer_list = json.load(file)
-        except FileNotFoundError:
-            transfer_list = []
-        except json.JSONDecodeError as ex:
-            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        transfer_list = read_json_file(TRANSFERS_STORE_FILE)
 
         for transfer_index in transfer_list:
             if (transfer_index["from_iban"] == my_request.from_iban and
@@ -171,13 +189,7 @@ class AccountManager:
 
         transfer_list.append(my_request.to_json())
 
-        try:
-            with open(TRANSFERS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(transfer_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise AccountManagementException("Wrong file  or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        write_json_file(TRANSFERS_STORE_FILE, transfer_list)
 
         return my_request.transfer_code
 
@@ -209,36 +221,23 @@ class AccountManager:
         if deposit_amount_float == 0:
             raise AccountManagementException("Error - Deposit must be greater than 0")
 
-        deposit_obj = AccountDeposit(to_iban=deposit_iban,
-                                     deposit_amount=deposit_amount_float)
+        deposit_obj = AccountDeposit(to_iban=deposit_iban, deposit_amount=deposit_amount_float)
 
-        try:
-            with open(DEPOSITS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                deposit_log = json.load(file)
-        except FileNotFoundError as ex:
-            deposit_log = []
-        except json.JSONDecodeError as ex:
-            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
-
+        ## using new functions
+        deposit_log = read_json_file(DEPOSITS_STORE_FILE)
         deposit_log.append(deposit_obj.to_json())
-
-        try:
-            with open(DEPOSITS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(deposit_log, file, indent=2)
-        except FileNotFoundError as ex:
-            raise AccountManagementException("Wrong file  or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        write_json_file(DEPOSITS_STORE_FILE, deposit_log)
 
         return deposit_obj.deposit_signature
 
-    def calculate_balance(self, iban:str)->bool:
+
+def calculate_balance(self, iban:str)->bool:
         """calculate the balance for a given iban"""
         iban = self.validate_iban(iban)
-        loaded_transcations = read_transactions_file()
+        loaded_transactions = read_transactions_file()
         iban_found = False
         total_balance = 0
-        for transaction in loaded_transcations:
+        for transaction in loaded_transactions:
             #print(transaction["IBAN"] + " - " + iban)
             if transaction["IBAN"] == iban:
                 total_balance += float(transaction["amount"])
@@ -249,20 +248,8 @@ class AccountManager:
         last_balance = {"IBAN": iban,
                         "time": datetime.timestamp(datetime.now(timezone.utc)),
                         "BALANCE": total_balance}
-
-        try:
-            with open(BALANCES_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                balance_list = json.load(file)
-        except FileNotFoundError:
-            balance_list = []
-        except json.JSONDecodeError as ex:
-            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
-
+        ## using the new functions
+        balance_list = read_json_file(BALANCES_STORE_FILE)
         balance_list.append(last_balance)
-
-        try:
-            with open(BALANCES_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(balance_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise AccountManagementException("Wrong file  or file path") from ex
+        write_json_file(BALANCES_STORE_FILE, balance_list)
         return True
