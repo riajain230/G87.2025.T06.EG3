@@ -129,7 +129,7 @@ class TestCalculateBalance(TestCase):
         except Exception as  ex:
             msg = str(ex)
 
-        #renaming the files to the orignal state
+        #renaming the files to the original state
         self.rename_file(TRANSACTIONS_STORE_FILE, NO_JSON_TRANSACTIONS_FILE)
         self.rename_file(NOMBRE_FICHERO_TEMPORAL,TRANSACTIONS_STORE_FILE)
         self.assertEqual(True,res,msg)

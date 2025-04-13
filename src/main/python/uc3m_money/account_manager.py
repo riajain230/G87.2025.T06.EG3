@@ -18,8 +18,8 @@ def validate_concept(concept: str):
     there are other ways to check this"""
     concept_pattern = re.compile(r"^(?=^.{10,30}$)([a-zA-Z]+(\s[a-zA-Z]+)+)$")
 
-    res = concept_pattern.fullmatch(concept)
-    if not res:
+    match_result = concept_pattern.fullmatch(concept)
+    if not match_result:
         raise AccountManagementException ("Invalid concept format")
 
 
@@ -29,10 +29,10 @@ def read_transactions_file():
     try:
         with open(TRANSACTIONS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
             input_list = json.load(file)
-    except FileNotFoundError as ex:
-        raise AccountManagementException("Wrong file  or file path") from ex
-    except json.JSONDecodeError as ex:
-        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+    except FileNotFoundError as exception:
+        raise AccountManagementException("Wrong file  or file path") from exception
+    except json.JSONDecodeError as exception:
+        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from exception
     return input_list
 
 
@@ -44,15 +44,15 @@ def validate_transfer_date(transfer_date):
         raise AccountManagementException("Invalid date format")
 
     try:
-        my_date = datetime.strptime(transfer_date, "%d/%m/%Y").date()
-    except ValueError as ex:
+        transfer_object_date = datetime.strptime(transfer_date, "%d/%m/%Y").date()
+    except ValueError as exception:
 
-        raise AccountManagementException("Invalid date format") from ex
+        raise AccountManagementException("Invalid date format") from exception
 
-    if my_date < datetime.now(timezone.utc).date():
+    if transfer_object_date < datetime.now(timezone.utc).date():
         raise AccountManagementException("Transfer date must be today or later.")
 
-    if my_date.year < 2025 or my_date.year > 2050:
+    if transfer_object_date.year < 2025 or transfer_object_date.year > 2050:
         raise AccountManagementException("Invalid date format")
     return transfer_date
 
@@ -64,8 +64,8 @@ def read_json_file(file_path):
             return json.load(file)
     except FileNotFoundError:
         return []
-    except json.JSONDecodeError as ex:
-        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+    except json.JSONDecodeError as exception:
+        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from exception
 
 def write_json_file(file_path, data):
     """This functions writes to a JSON file and if raises error if the file pathis wrong or
@@ -73,10 +73,10 @@ def write_json_file(file_path, data):
     try:
         with open(file_path, "w", encoding="utf-8", newline="") as file:
             json.dump(data, file, indent=2)
-    except FileNotFoundError as ex:
-        raise AccountManagementException("Wrong file  or file path") from ex
-    except json.JSONDecodeError as ex:
-        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+    except FileNotFoundError as exception:
+        raise AccountManagementException("Wrong file  or file path") from exception
+    except json.JSONDecodeError as exception:
+        raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from exception
 
 
 class AccountManager:
@@ -160,9 +160,9 @@ class AccountManager:
         except ValueError as exc:
             raise AccountManagementException("Invalid transfer amount") from exc
 
-        n_str = str(float_amount)
-        if '.' in n_str:
-            decimals = len(n_str.split('.')[1])
+        amount_string = str(float_amount)
+        if '.' in amount_string:
+            decimals = len(amount_string.split('.')[1])
             if decimals > 2:
                 raise AccountManagementException("Invalid transfer amount")
 
