@@ -135,57 +135,87 @@ class AccountManager:
         return ''.join(str(ord(char.upper()) - 55) if char.isalpha() else char for char in iban)
 
     #pylint: disable=too-many-arguments
+
+    """
+    (CHANGE)
+    CHANGES IN `transfer_request()` METHOD:
+    1.Extracted duplicate transfer check into `is_duplicate_transfer()` method for clarity and reusability.
+    2.Moved transfer amount validation into a separate method `validate_amount()` to reduce clutter and improve modularity.
+    3.Replaced regex-based transfer type validation with simpler set-based membership check.
+    4.Improved naming (`existing_transfer`, `float_amount`) for clarity.
+    """
+
+    @staticmethod
+    def is_duplicate_transfer(existing_transfer: dict, new_transfer: TransferRequest) -> bool:
+        """
+        Compares an existing transfer record with a new transfer request to check for duplication.
+        """
+        return (
+            existing_transfer["from_iban"] == new_transfer.from_iban and
+            existing_transfer["to_iban"] == new_transfer.to_iban and
+            existing_transfer["transfer_date"] == new_transfer.transfer_date and
+            existing_transfer["transfer_amount"] == new_transfer.transfer_amount and
+            existing_transfer["transfer_concept"] == new_transfer.transfer_concept and
+            existing_transfer["transfer_type"] == new_transfer.transfer_type
+        )
+
+    @staticmethod
+    def validate_amount(amount: float) -> float:
+        """
+        Validates that the amount is a float, between 10 and 10,000 EUR,
+        and has at most 2 decimal places.
+        """
+        try:
+            float_amount = float(amount)
+        except ValueError as exc:
+            raise AccountManagementException("Invalid transfer amount") from exc
+
+        if float_amount < 10 or float_amount > 10000:
+            raise AccountManagementException("Invalid transfer amount")
+
+        amount_string = str(float_amount)
+        if '.' in amount_string and len(amount_string.split('.')[1]) > 2:
+            raise AccountManagementException("Invalid transfer amount")
+
+        return float_amount
+
     def transfer_request(self, from_iban: str,
                          to_iban: str,
                          concept: str,
                          transfer_type: str,
                          date: str,
-                         amount: float)->str:
-        """first method: receives transfer info and
-        stores it into a file"""
+                         amount: float) -> str:
+        """
+        Processes a new transfer request: validates input, checks for duplicates,
+        and stores the transfer if valid.
+        """
         self.validate_iban(from_iban)
         self.validate_iban(to_iban)
         validate_concept(concept)
-        transfer_type_pattern = re.compile(r"(ORDINARY|INMEDIATE|URGENT)")
-        result = transfer_type_pattern.fullmatch(transfer_type)
-        if not result:
+
+        valid_transfer_types = {"ORDINARY", "INMEDIATE", "URGENT"}
+        if transfer_type not in valid_transfer_types:
             raise AccountManagementException("Invalid transfer type")
+
         validate_transfer_date(date)
+        float_amount = self.validate_amount(amount)
 
-        try:
-            float_amount  = float(amount)
-        except ValueError as exc:
-            raise AccountManagementException("Invalid transfer amount") from exc
-
-        amount_string = str(float_amount)
-        if '.' in amount_string:
-            decimals = len(amount_string.split('.')[1])
-            if decimals > 2:
-                raise AccountManagementException("Invalid transfer amount")
-
-        if float_amount < 10 or float_amount > 10000:
-            raise AccountManagementException("Invalid transfer amount")
-
-        my_request = TransferRequest(from_iban=from_iban,
-                                     to_iban=to_iban,
-                                     transfer_concept=concept,
-                                     transfer_type=transfer_type,
-                                     transfer_date=date,
-                                     transfer_amount=amount)
+        my_request = TransferRequest(
+            from_iban=from_iban,
+            to_iban=to_iban,
+            transfer_concept=concept,
+            transfer_type=transfer_type,
+            transfer_date=date,
+            transfer_amount=float_amount
+        )
 
         transfer_list = read_json_file(TRANSFERS_STORE_FILE)
 
-        for transfer_index in transfer_list:
-            if (transfer_index["from_iban"] == my_request.from_iban and
-                    transfer_index["to_iban"] == my_request.to_iban and
-                    transfer_index["transfer_date"] == my_request.transfer_date and
-                    transfer_index["transfer_amount"] == my_request.transfer_amount and
-                    transfer_index["transfer_concept"] == my_request.transfer_concept and
-                    transfer_index["transfer_type"] == my_request.transfer_type):
+        for existing_transfer in transfer_list:
+            if self.is_duplicate_transfer(existing_transfer, my_request):
                 raise AccountManagementException("Duplicated transfer in transfer list")
 
         transfer_list.append(my_request.to_json())
-
         write_json_file(TRANSFERS_STORE_FILE, transfer_list)
 
         return my_request.transfer_code
