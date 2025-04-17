@@ -107,7 +107,6 @@ class AccountManager:
 
 
         # Convertir el IBAN en una cadena numérica, reemplazando letras por números
-        # (CHANGE) Created helper function, convert_iban_to_numeric, to automate repetitive conversion of iban to a numeric form, where the alphanumeric characters are converted to numbers
         iban = AccountManager.convert_iban_to_numeric(iban)
 
         # Mover los cuatro primeros caracteres al final
