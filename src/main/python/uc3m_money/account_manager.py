@@ -207,9 +207,7 @@ class AccountManager:
         self.validate_iban(to_iban)
         validate_concept(concept)
 
-        valid_transfer_types = {"ORDINARY", "INMEDIATE", "URGENT"}
-        if transfer_type not in valid_transfer_types:
-            raise AccountManagementException("Invalid transfer type")
+        self.validate_transfer_type(transfer_type)
 
         validate_transfer_date(date)
         float_amount = self.validate_amount(amount)
@@ -234,15 +232,14 @@ class AccountManager:
 
         return my_request.transfer_code
 
+    def validate_transfer_type(self, transfer_type):
+        valid_transfer_types = {"ORDINARY", "INMEDIATE", "URGENT"}
+        if transfer_type not in valid_transfer_types:
+            raise AccountManagementException("Invalid transfer type")
+
     def deposit_into_account(self, input_file:str)->str:
         """manages the deposits received for accounts"""
-        try:
-            with open(input_file, "r", encoding="utf-8", newline="") as file:
-                input_data = json.load(file)
-        except FileNotFoundError as ex:
-            raise AccountManagementException("Error: file input not found") from ex
-        except json.JSONDecodeError as ex:
-            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        input_data = self.deposit_data_load(input_file)
 
         # comprobar valores del fichero
         try:
@@ -270,6 +267,16 @@ class AccountManager:
         write_json_file(DEPOSITS_STORE_FILE, deposit_log)
 
         return deposit_obj.deposit_signature
+
+    def deposit_data_load(self, input_file):
+        try:
+            with open(input_file, "r", encoding="utf-8", newline="") as file:
+                input_data = json.load(file)
+        except FileNotFoundError as ex:
+            raise AccountManagementException("Error: file input not found") from ex
+        except json.JSONDecodeError as ex:
+            raise AccountManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        return input_data
 
     def calculate_balance(self, iban:str):
         """ Calculates the balance for a given iban from the transactions sheet"""

@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 class TransferRequest:
     """Class representing a transfer request"""
     #pylint: disable=too-many-arguments
+
     def __init__(self,
                  from_iban: str,
                  transfer_type: str,
@@ -13,6 +14,7 @@ class TransferRequest:
                  transfer_concept:str,
                  transfer_date:str,
                  transfer_amount:float):
+
         self.__from_iban = from_iban
         self.__to_iban = to_iban
         self.__transfer_type = transfer_type
