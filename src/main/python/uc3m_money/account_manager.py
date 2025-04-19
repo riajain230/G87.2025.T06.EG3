@@ -89,7 +89,7 @@ class AccountManager:
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            """The first time, we create and store the object."""
+            """The first time instantiating, we create and store the object."""
             cls._instance = super().__new__(cls)
         return cls._instance
 
@@ -223,14 +223,17 @@ class AccountManager:
 
         transfer_list = read_json_file(TRANSFERS_STORE_FILE)
 
-        for existing_transfer in transfer_list:
-            if self.is_duplicate_transfer(existing_transfer, my_request):
-                raise AccountManagementException("Duplicated transfer in transfer list")
+        self.check_transfer_list_duplicate(my_request, transfer_list)
 
         transfer_list.append(my_request.to_json())
         write_json_file(TRANSFERS_STORE_FILE, transfer_list)
 
         return my_request.transfer_code
+
+    def check_transfer_list_duplicate(self, my_request, transfer_list):
+        for existing_transfer in transfer_list:
+            if self.is_duplicate_transfer(existing_transfer, my_request):
+                raise AccountManagementException("Duplicated transfer in transfer list")
 
     def validate_transfer_type(self, transfer_type):
         valid_transfer_types = {"ORDINARY", "INMEDIATE", "URGENT"}
