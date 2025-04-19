@@ -223,14 +223,14 @@ class AccountManager:
 
         transfer_list = read_json_file(TRANSFERS_STORE_FILE)
 
-        self.check_transfer_list_duplicate(my_request, transfer_list)
+        self.check_transferlist_duplicate(my_request, transfer_list)
 
         transfer_list.append(my_request.to_json())
         write_json_file(TRANSFERS_STORE_FILE, transfer_list)
 
         return my_request.transfer_code
 
-    def check_transfer_list_duplicate(self, my_request, transfer_list):
+    def check_transferlist_duplicate(self, my_request, transfer_list):
         for existing_transfer in transfer_list:
             if self.is_duplicate_transfer(existing_transfer, my_request):
                 raise AccountManagementException("Duplicated transfer in transfer list")
@@ -245,22 +245,14 @@ class AccountManager:
         input_data = self.deposit_data_load(input_file)
 
         # comprobar valores del fichero
-        try:
-            deposit_iban = input_data["IBAN"]
-            deposit_amount = input_data["AMOUNT"]
-        except KeyError as e:
-            raise AccountManagementException("Error - Invalid Key in JSON") from e
+        deposit_amount, deposit_iban = self.validate_input_data_format(input_data)
 
 
         deposit_iban = self.validate_iban(deposit_iban)
         amount_pattern = re.compile(r"^EUR [0-9]{4}\.[0-9]{2}")
         result = amount_pattern.fullmatch(deposit_amount)
-        if not result:
-            raise AccountManagementException("Error - Invalid deposit amount")
 
-        deposit_amount_float = float(deposit_amount[4:])
-        if deposit_amount_float == 0:
-            raise AccountManagementException("Error - Deposit must be greater than 0")
+        deposit_amount_float = self.validate_deposit_amount(deposit_amount, result)
 
         deposit_obj = AccountDeposit(to_iban=deposit_iban, deposit_amount=deposit_amount_float)
 
@@ -270,6 +262,22 @@ class AccountManager:
         write_json_file(DEPOSITS_STORE_FILE, deposit_log)
 
         return deposit_obj.deposit_signature
+
+    def validate_deposit_amount(self, deposit_amount, result):
+        if not result:
+            raise AccountManagementException("Error - Invalid deposit amount")
+        deposit_amount_float = float(deposit_amount[4:])
+        if deposit_amount_float == 0:
+            raise AccountManagementException("Error - Deposit must be greater than 0")
+        return deposit_amount_float
+
+    def validate_input_data_format(self, input_data):
+        try:
+            deposit_iban = input_data["IBAN"]
+            deposit_amount = input_data["AMOUNT"]
+        except KeyError as e:
+            raise AccountManagementException("Error - Invalid Key in JSON") from e
+        return deposit_amount, deposit_iban
 
     def deposit_data_load(self, input_file):
         try:
