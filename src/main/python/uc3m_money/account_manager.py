@@ -80,9 +80,23 @@ def write_json_file(file_path, data):
 
 
 class AccountManager:
-    """Class for providing the methods for managing the orders"""
+    """Class for providing the methods for managing the orders
+    CHANGE: Implementing as a Singleton
+    """
+
+    _instance = None
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            """The first time, we create and store the object."""
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        pass
+        if AccountManager._initialized:
+            return
+        AccountManager._initialized = True
 
     @staticmethod
     def validate_iban(input_iban: str):
@@ -258,7 +272,7 @@ class AccountManager:
         return deposit_obj.deposit_signature
 
     def calculate_balance(self, iban:str):
-        """ Calculates the balance for a given iban from the transcations sheet"""
+        """ Calculates the balance for a given iban from the transactions sheet"""
         iban = self.validate_iban(iban)
         loaded_transactions = read_transactions_file()
         iban_found = False
