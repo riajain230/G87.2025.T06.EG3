@@ -81,8 +81,19 @@ def write_json_file(file_path, data):
 
 class AccountManager:
     """Class for providing the methods for managing the orders"""
+    _instance = None
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            """The first time instantiating, we create and store the object."""
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        pass
+        if AccountManager._initialized:
+            return
+        AccountManager._initialized = True
 
     @staticmethod
     def validate_iban(input_iban: str):
